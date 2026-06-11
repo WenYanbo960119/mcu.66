@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>銘傳大學：迴音迴廊 (全校通用長篇版)</title>
+    <style>
+        body {
+            background-color: #0a0b0e;
+            color: #e2e8f0;
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            padding: 30px 10px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+        .game-container {
+            max-width: 850px;
+            width: 100%;
+            background: #11141c;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+            border-top: 6px solid #ff3333;
+        }
+        .scene-box {
+            width: 100%;
+            height: 480px; /* 大畫面 */
+            border-radius: 12px;
+            border: 2px solid #2d3748;
+            overflow: hidden;
+            margin-bottom: 25px;
+            background: #000;
+        }
+        .scene-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s ease-in-out;
+        }
+        .status-badge {
+            background: #1a202c;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #ff5555;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 85, 85, 0.4);
+            font-weight: bold;
+        }
+        h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin: 0 0 8px 0;
+        }
+        .subtitle {
+            color: #a0aec0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .story-box {
+            text-align: left;
+            background: #07080c;
+            padding: 25px;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.9;
+            margin-bottom: 25px;
+            border-left: 5px solid #ff3333;
+            min-height: 200px;
+        }
+        .story-box strong {
+            color: #ff5555;
+            font-size: 19px;
+        }
+        .btn {
+            display: block;
+            background: #1f2430;
+            color: #e2e8f0;
+            padding: 16px 22px;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid #323949;
+            width: 100%;
+            font-size: 15px;
+            text-align: left;
+            box-sizing: border-box;
+        }
+        .btn:hover {
+            background: linear-gradient(90deg, #ff3333 0%, #cc0000 100%);
+            color: #ffffff;
+            border-color: #ff3333;
+            transform: scale(1.01) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 51, 51, 0.3);
+        }
+        .footer {
+            margin-top: 35px;
+            font-size: 12px;
+            color: #4a5568;
+            border-top: 1px solid #1a202c;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="status-badge" id="game-status">載入中...</div>
+        <div class="scene-box">
+            <img id="scene-img" class="scene-img" src="" alt="場景">
+        </div>
+        <h1>銘傳大學：迴音迴廊 (全校通用版)</h1>
+        <div class="subtitle">純享校園恐怖懸疑 — 考驗你的勇氣、直覺與對學校的了解。</div>
+
+        <div class="story-box" id="story-text">加載中...</div>
+        <div id="options-box"></div>
+
+        <div class="footer">
+            <p>© 2026 MCU Campus Horror Project. Pure Story Edition.</p>
+        </div>
+    </div>
+
+    <script>
+        const storyData = {
+            // ==================== STAGE 1 ====================
+            "start": {
+                status: "校園正門口 (探索度: 10%)",
+                img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200",
+                text: "<strong>【第一章：黑夜中的校園】</strong><br><br>晚上 9:30，銘傳大學正下著令人絕望的暴雨。你剛結束期末的最後一堂課，準備下山回家。然而你才剛走到校門口，突然啪的一聲，全校路燈與電子看板瞬間熄滅。<br><br>漆黑的黑暗中，身後傳來極度低沉、重疊的腳步聲。一個冰冷的聲音在暴雨中呢喃：『同學……既然都留到這麼晚了，就留下來陪我們，永遠不要畢業吧……』",
+                choices: [
+                    { text: "🏃 選擇 A：打開手機手電筒，踏上前方那條濕滑、彷彿沒有盡頭的校園大階梯坡道", target: "stairs_path" },
+                    { text: "🚌 選擇 B：看見路邊停著一輛亮著詭異幽綠冷光的最後一班校車，不顧一切衝上車躲雨", target: "bus_path" },
+                    { text: "🏫 選擇 C：冒雨沿著圍牆外側繞道，試圖尋找通往地下綜合體育館的秘密暗門", target: "gym_path" }
+                ]
+            },
+
+            // ==================== STAGE 2 ====================
+            "stairs_path": {
+                status: "無限大階梯 (探索度: 25%)",
+                img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1200",
+                text: "<strong>【第二章：走不完的階梯】</strong><br><br>你選擇了階梯。雨水瘋狂打在你的臉上，你爬了整整十分鐘，腿酸得快要斷掉。但當你一回頭，卻驚恐地發現：你竟然還停在剛進校門的起點！這段階梯彷彿在無限延伸！<br><br>此時，石階扶手上亮起了發光的古老校刊文字：『凡是深夜數階梯的人，每走一步，就會多出一階……』",
+                choices: [
+                    { text: "📝 拿出隨身攜帶的原子筆，狠狠地將扶手上的校刊文字劃掉，試圖打破這個詛咒", target: "break_loop" },
+                    { text: "🔄 閉上雙眼不看階梯，在心中默唸學校的校訓，嘗試閉著眼睛反向往下倒退走", target: "matrix_reverse" },
+                    { text: "🏃 管它的！大吼一聲發揮全身的爆發力，加快速度繼續死命往上狂奔", target: "run_crazy" }
+                ]
+            },
+            "bus_path": {
+                status: "幽靈校車內 (探索度: 25%)",
+                img: "https://images.unsplash.com/photo-1548345680-f5475ea5df84?w=1200",
+                text: "<strong>【第三章：神祕的末班車】</strong><br><br>你選擇了校車。一上車，車門『砰』地重重關上並死鎖。車內空無一人，司機座上只有一套飄浮的空制服！校車突然瘋狂發動，以極快的速度在漆黑的山路上甩尾狂飆！<br><br>前方的擋風玻璃上漸漸凝聚出血字：『未到終點，生人不得下車。校車即將衝向懸崖……』",
+                choices: [
+                    { text: "🎛️ 勇敢撲向司機座，強行扭轉方向盤並死死踩下煞車", target: "hit_brake" },
+                    { text: "🔨 提起座位旁的紅色安全錘，瘋狂砸向後方的緊急安全門試圖跳車", target: "smash_door" },
+                    { text: "📱 趕快打開手機，試圖撥打緊急電話向外求救", target: "bluetooth_hack" }
+                ]
+            },
+            "gym_path": {
+                status: "黑暗地下體育館 (探索度: 25%)",
+                img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200",
+                text: "<strong>【第四章：舊校隊的圍攻】</strong><br><br>你選擇了體育館。從安全通道爬進來後，你來到了空曠陰暗的室內體育館。球場中央的計分板突然亮起，上面顯示著悲慘的字樣：【怨靈 99：0 生人】。<br><br>突然，球場四周傳來密密麻麻的拍球聲，無數個由黑影組成的『歷屆留級怨靈校隊』一邊拍著球，一邊面目猙獰地將你死死包圍！空間變得越來越冰冷！",
+                choices: [
+                    { text: "🏃 轉身衝向體育館二樓的播音控制室，試圖利用全校廣播放音樂驅散黑影", target: "broadcast_room" },
+                    { text: "🎒 蹲下打開背包，拔出攜帶的長傘，當作防身武器威嚇他們", target: "electric_shield" },
+                    { text: "🏀 抱起地上發光的籃球，試圖瞄準計分板狠狠砸過去，想打破這個詛咒的分數", target: "solve_failed" }
+                ]
+            },
+
+            // ==================== STAGE 3 ====================
+            "break_loop": {
+                status: "教學大樓中庭 (探索度: 50%)",
+                img: "https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?w=1200",
+                text: "<strong>【第五章：神秘螢幕的謎題】</strong><br><br>當你劃掉詛咒文字的瞬間，周遭的黑霧一陣劇烈扭曲！當你張開眼，你發現自己成功站在了教學大樓的中庭。此時，中庭中央的超大螢幕亮起，上面出現了一個巨大的校園鳥瞰圖，其中一個建築被紅光圈了起來。<br><br>廣播傳來急促的倒數聲：『30秒內未找出這棟亮紅光的是哪棟系館，全校大樓將全面封鎖！』",
+                choices: [
+                    { text: "🖥️ 走上前敲擊主控台，回答：『這是資訊傳播大樓！』", target: "solve_success" },
+                    { text: "🖥️ 走上前敲擊主控台，回答：『這是綜合體育館！』", target: "solve_failed" },
+                    { text: "🚪 覺得太詭異了，繞過螢幕直接推開旁邊貼著「教師辦公室」的厚重木門", target: "office_path" }
+                ]
+            },
+            "matrix_reverse": {
+                status: "古老鐘樓內部 (探索度: 50%)",
+                img: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=1200",
+                text: "<strong>【第六章：鐘樓的幽靈學長】</strong><br><br>閉上眼睛倒退走，你竟然成功打破了階梯的幻覺，直接穿透空間來到了校園最高處的古老鐘樓內部！巨大齒輪在卡嗒卡嗒地轉動。這時，一個飄浮在半空中的學長幽靈正冷冷地盯著你。<br><br>他手上拿著一本泛黃的舊週誌：「學弟，銘傳創校時最著名的校訓核心是什麼？回答不出來就留下來當我的重修助手吧。」",
+                choices: [
+                    { text: "📌 大聲回答：『唯真唯校！』", target: "pointer_correct" },
+                    { text: "📌 緊張回答：『自由民主！』", target: "pointer_wrong" },
+                    { text: "🧗 拒絕回答！轉身爬上鐘樓窗台，試圖沿著外牆的老舊排水管冒險滑下去逃跑", target: "drainpipe_escape" }
+                ]
+            },
+            "run_crazy": {
+                status: "錯誤防空洞迷宮 (探索度: 45%)",
+                img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200",
+                text: "<strong>【第七章：蠻幹的代價】</strong><br><br>你選擇用體能硬碰硬！你拼了命往上爬，雖然成功穿過了死迴圈階梯，但因為跑錯了路，你一頭栽進了學校老舊的地下防空洞迷宮裡。四周牆壁不斷滲出黑色的不明液體，空氣中瀰漫著令人窒息的壓迫感。",
+                choices: [
+                    { text: "🔦 冷靜觀察地上的腳印，順著風吹來的方向尋找出口", target: "solve_success" },
+                    { text: "🚪 摸黑前進，強行推開前方一扇生鏽的鐵門，看看裡面是什麼", target: "office_path" },
+                    { text: "😭 留在原地，大喊請求救援", target: "data_storm_trap" }
+                ]
+            },
+            "hit_brake": {
+                status: "地下中央廣播機房 (探索度: 50%)",
+                img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200",
+                text: "<strong>【第八章：解除怨氣總開關】</strong><br><br>你死死踩下煞車！校車一記瘋狂甩尾，車尾直接撞開了教學大樓的地下室鐵門，停在了中央廣播機房。這裡有無數條發光的電線像觸手一樣在地面和天花板上蠕動。<br><br>核心主機因為怨氣過載正在瘋狂冒煙，似乎只要切斷警報器，就能讓校園恢復正常！",
+                choices: [
+                    { text: "💻 坐到控制台前，冷靜尋找密碼，解除全校的緊急警報系統", target: "free_success" },
+                    { text: "🪓 提起旁邊消防栓上的消防斧頭，使出全力直接朝主機的總電源砍下去", target: "solve_failed" },
+                    { text: "🏃 沿著旁邊狹窄的緊急樓梯往上爬，尋找安全出口", target: "water_pipe_path" }
+                ]
+            },
+            "smash_door": {
+                status: "大樓外牆懸崖 (探索度: 45%)",
+                img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1200",
+                text: "<strong>【第九章：懸崖邊的掙扎】</strong><br><br>你用安全錘砸碎了車窗，在校車衝入山谷的前一秒狼狽跳車，摔在了教學大樓外側的鋼筋平台上。暴雨瘋狂沖刷著你，你發現自己正懸掛在高空中，唯一的生路是沿著外牆濕滑的排水管往下爬。",
+                choices: [
+                    { text: "🧗 咬緊牙關，頂著強風沿著排水管慢慢滑向一樓草叢", target: "drainpipe_escape" },
+                    { text: "🪟 打破身旁三樓教室的窗戶，強行翻滾進教室內", target: "office_path" },
+                    { text: "📱 抓緊鋼筋，掏出手機大聲呼救", target: "data_storm_trap" }
+                ]
+            },
+            "bluetooth_hack": {
+                status: "斷訊的手機 (探索度: 50%)",
+                img: "https://images.unsplash.com/photo-1548345680-f5475ea5df84?w=1200",
+                text: "<strong>【第十章：收不到訊號的絕望】</strong><br><br>你拿出手機，但螢幕上顯示『無服務』。校車速度越來越快！你注意到司機座下方有一個手動緊急開門閥，但上面被一把掛鎖鎖住了，旁邊寫著謎題：『找出學校最著名的一段陡坡名稱。』",
+                choices: [
+                    { text: "⌨️ 在鎖上輸入答案：『好漢坡』", target: "free_success" },
+                    { text: "⌨️ 在鎖上輸入答案：『絕望坡』", target: "solve_failed" },
+                    { text: "😭 想不出答案，絕望地閉上眼睛", target: "data_storm_trap" }
+                ]
+            },
+            "broadcast_room": {
+                status: "播音控制室 (探索度: 50%)",
+                img: "https://images.unsplash.com/photo-1510070112810-d4e9a46d9e91?w=1200",
+                text: "<strong>【第十一章：音樂的力量】</strong><br><br>你衝進了二樓的播音室，反鎖了大門。下方的黑影怨靈們瘋狂撞擊著門板。你發現播音台正連接著全校的喇叭，只要播放出充滿朝氣的『校歌』，就能用正能量消除怨氣！",
+                choices: [
+                    { text: "🎛️ 將光碟放進去，按下校歌播放鍵", target: "solve_success" },
+                    { text: "🎛️ 隨便亂轉按鈕，試圖放大噪音", target: "solve_failed" },
+                    { text: "🏃 放棄播音台，從後方通風口逃走", target: "water_pipe_path" }
+                ]
+            },
+
+            // ==================== STAGE 4 ====================
+            "solve_success": {
+                status: "安全通道 (探索度: 75%)",
+                img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
+                text: "<strong>【第十二章：迎來曙光的路】</strong><br><br>回答正確！四周的黑霧與怨氣瞬間消散，前方的走廊亮起了溫暖的黃光。這條安全的通道暢通無阻，直接將你引導到了學校最核心的萬人大禮堂大門前，只要進去，就能結束這場惡夢！",
+                choices: [
+                    { text: "🚪 推開大門，進入萬人大禮堂，迎戰最後的謎題", target: "final_hall" },
+                    { text: "🏛️ 發現旁邊有一部亮著金光的電梯，決定搭去頂樓校長室看看", target: "president_room" },
+                    { text: "🔍 覺得太順利了，留在走廊檢查配電箱", target: "data_storm_trap" }
+                ]
+            },
+            "solve_failed": {
+                status: "數據迷宮中心 (探索度: 70%)",
+                img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200",
+                text: "<strong>【第十三章：紅光的警告】</strong><br><br>糟糕，回答錯誤！大螢幕噴發出刺眼的紅光，你被拉入了一個充滿紅色警告標語的封閉迷宮。空氣中不斷傳來刺耳的警報音。你必須手動找到真正的出路！",
+                choices: [
+                    { text: "🧠 靠著對校園地圖的記憶，摸著牆壁強行尋找出口", target: "final_hall" },
+                    { text: "🛑 坐在地上，用手電筒的光束在地上畫圈建立防線", target: "office_path" },
+                    { text: "😭 徹底放棄，大喊投降", target: "data_storm_trap" }
+                ]
+            },
+            "office_path": {
+                status: "古老院辦公室 (探索度: 75%)",
+                img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200",
+                text: "<strong>【第十四章：石膏教授的審查】</strong><br><br>你推開木門，辦公室裡黑壓壓一片，排滿了由石膏做成的教授雕像。最中央的系主任雕像雙眼突然睜開，發出空洞的聲音：「同學，既然沒去參加期末考，就直接進行口試吧！回答我：本校的創辦人是誰？」",
+                choices: [
+                    { text: "📌 大聲回答：『包德明博士！』", target: "pointer_correct" },
+                    { text: "📌 緊張回答：『孫中山先生！』", target: "pointer_wrong" },
+                    { text: "🏃 轉身衝向辦公室後方的緊急逃生梯", target: "drainpipe_escape" }
+                ]
+            },
+            "pointer_correct": {
+                status: "學長的認可 (探索度: 80%)",
+                img: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=1200",
+                text: "<strong>【第十五章：畢業證書的護體】</strong><br><br>「回答正確，你對學校非常認同。」系主任教授與鐘樓學長同時露出了欣慰的笑容。他們化為無數張散發著金光的及格證書。前方時空裂開，出現了三個路口，怨氣徹底消失了！",
+                choices: [
+                    { text: "✨ 順著秘笈的光芒，直接傳送進大禮堂的最終考場", target: "final_hall" },
+                    { text: "🏛️ 傳送到頂樓校長室，用最高權限解開校長室大門", target: "president_room" },
+                    { text: "🔄 按下時空大鐘中央的「時間重設鈕」，試圖讓全校暴雨停下來", target: "time_reset_scene" }
+                ]
+            },
+            "pointer_wrong": {
+                status: "重修煉獄地窖 (探索度: 65%)",
+                img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200",
+                text: "<strong>【第十六章：不及格的絕望】</strong><br><br>「校史完全不合格！留下來重修吧！」教授們憤怒地咆哮，整座辦公室劇烈震動，你腳下的木板碎裂，直接掉進了地下最底層的廢棄地窖。這裡堆滿了舊書，陰風陣陣。",
+                choices: [
+                    { text: "🕯️ 點燃地上廢棄的紙張當作火把，沿著唯一的暗道前進", target: "data_storm_trap" },
+                    { text: "🏃 發現牆壁上有個老舊的排風口，用盡全力拆開它並往上爬", target: "final_hall" },
+                    { text: "📱 再一次打開手機，看看有沒有奇蹟", target: "solve_failed" }
+                ]
+            },
+            "drainpipe_escape": {
+                status: "校園泥濘草叢 (探索度: 60%)",
+                img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1200",
+                text: "<strong>【第十七章：草叢中的奇遇】</strong><br><br>你安全滑到了地面草叢中。這時，你注意到泥土裡埋著一塊發光的校徽金牌，上面還通著微弱的溫暖能量……這似乎是多年前建校時被埋藏的守護聖物！",
+                choices: [
+                    { text: "🔌 把金牌擦乾淨，握在手心裡當作護身符", target: "free_success" },
+                    { text: "🏃 不管金牌了，快點跑向萬人大禮堂離開校園", target: "final_hall" },
+                    { text: "🤫 躲在草叢裡休息，等待這場恐怖的暴雨過去", target: "data_storm_trap" }
+                ]
+            },
+            "free_success": {
+                status: "校園核心控制台 (探索度: 85%)",
+                img: "https://images.unsplash.com/photo-1548345680-f5475ea5df84?w=1200",
+                text: "<strong>【第十八章：解除全校詛咒】</strong><br><br>【警報解除。校園系統回復正常】。漆黑的校園頓時恢復了光明，四周的恐怖迴音也消失了。主控台下方彈出了一把燙金的金色鑰匙，寫著『校長室通行證』。",
+                choices: [
+                    { text: "🔑 拿起通行證，搭乘升降梯直達最高層的校長室", target: "president_room" },
+                    { text: "🏫 帶上鑰匙，穿過開啟的地下通道，前往大禮堂迎接最終結局", target: "final_hall" },
+                    { text: "🔍 留下來看看有沒有其他秘密學校歷史", target: "data_storm_trap" }
+                ]
+            },
+            "water_pipe_path": {
+                status: "安全逃生管道 (探索度: 65%)",
+                img: "https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=1200",
+                text: "<strong>【第十九章：管道內的迷途】</strong><br><br>你在狹窄的逃生管道內艱難爬行。四周不斷傳來雷聲和遠處的鐘聲。前面出現了三個不同的分叉管口，各自寫著不同的字樣！",
+                choices: [
+                    { text: "⚙️ 爬向寫著「通往大禮堂」的管口", target: "final_hall" },
+                    { text: "⚙️ 爬向寫著「通往辦公室」的管口", target: "office_path" },
+                    { text: "⚙️ 爬向沒有任何標示、散發著紅光的管口", target: "data_storm_trap" }
+                ]
+            },
+
+            // ==================== STAGE 5 ====================
+            "president_room": {
+                status: "頂樓校長室 (探索度: 90%)",
+                img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200",
+                text: "<strong>【第二十章：校長的青銅鎖】</strong><br><br>你來到了象徵銘傳最高榮譽的校長室。辦公桌上嵌著一個巨大的青銅密碼鎖，上面刻著校訓：『唯真唯校』。旁邊有一行提示：『本校創校於西元哪一年？輸入正確，全校怨氣將永久超渡。』",
+                choices: [
+                    { text: "🔢 輸入創校年份：1957 年", target: "end_legend" },
+                    { text: "🔢 輸入建校年份：1965 年", target: "data_storm_trap" },
+                    { text: "🔨 拒絕猜測，舉起旁邊的裝飾花瓶直接把鎖砸爛", target: "end_repeat" }
+                ]
+            },
+            "time_reset_scene": {
+                status: "時間迴流裂縫 (探索度: 95%)",
+                img: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=1200",
+                text: "<strong>【第二十一章：重寫命運之輪】</strong><br><br>大鐘瘋狂倒轉！時空發生嚴重撕裂，外面的暴雨竟然開始往天空倒流。你手裡拿著全修及格的成績單，站在了破曉晴空下的銘傳校園。你用勇氣重寫了歷史！",
+                choices: [
+                    { text: "✨ 踏入光芒中，正式迎來你的傳奇畢業結局", target: "end_perfect" },
+                    { text: "✨ 拒絕離開，留在這個時空成為校園的守護神", target: "end_perfect" },
+                    { text: "🔄 清除記憶，重新體驗這場瘋狂的重修冒險", target: "start" }
+                ]
+            },
+            "final_hall": {
+                status: "最終戰：萬人大禮堂 (探索度: 95%)",
+                img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200",
+                text: "<strong>【最終章：大禮堂的終點】</strong><br><br>你終於抵達了大禮堂。此時雷聲大作，舞台中央正懸浮著一張巨大的、散發著血紅色光芒的畢業證書，四周環繞著無數被留級的重修生怨靈，形成了龐大的風暴！這是你最後一擊的時刻了！",
+                choices: [
+                    { text: "⚡ 高舉心中的正義與校訓，使出終極奧義大喊：『我要歐趴畢業！』", target: "end_perfect" },
+                    { text: "🛡️ 舉起背包擋住風暴，頂著精神壓力強行衝過去拿走證書", target: "end_good" },
+                    { text: "😭 撐不下去了，跪倒在地上對著天空大喊：『救我啊！』", target: "end_repeat" }
+                ]
+            },
+            "data_storm_trap": {
+                status: "怨靈風暴中心 (探索度: 90%)",
+                img: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
+                text: "<strong>【第二十二章：黑霧的陷阱】</strong><br><br>你觸發了隱藏的詛咒！四周場景瞬間粉碎，你被拉入了風暴中心。冰冷的機械音嘲笑著你：『投機取巧……將永遠留在這棟大樓裡！』手無寸鐵的你該怎麼做？",
+                choices: [
+                    { text: "🔥 燃燒靈魂！用不眠不休熬夜趕報告的意志力，強行穩住精神！", target: "end_normal" },
+                    { text: "🛡️ 閉上雙眼，用身體硬扛下這波衝擊，任由命運宰割", target: "end_repeat" },
+                    { text: "🔄 拼盡最後一絲力氣，按下口袋裡的秘密重設按鈕", target: "start" }
+                ]
+            },
+
+            // ==================== 5 大終極結局 ====================
+            "end_perfect": {
+                status: "👑 最終結局一：神級優秀畢業生 (True End)",
+                img: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?w=1200",
+                text: "<strong>【True End：傳奇歐趴的救贖】</strong><br><br>你的勇氣成功驅散了黑暗！大禮堂的怨靈風暴瞬間平息，化作無數金色的光點消散。窗外暴雨初霽，溫暖的破曉晨光灑在禮堂座椅上。<br><br>你猛然驚醒，發現自己正坐在明亮的教室裡，監考老師敲了敲你的桌子：「同學，交卷時間到了。看你寫得這麼順，還面帶微笑呢？」<br><br>你低頭一看，答案寫得完美無瑕。幾年後，你憑藉卓越的毅力與在銘傳學到的能力，順利進入理想的企業，達成了年薪百萬以上的傳奇生涯！",
+                choices: [{ text: "🎉 恭喜通關【真結局】！點擊重溫多宇宙故事", target: "start" }]
+            },
+            "end_legend": {
+                status: "👑 最終結局二：銘傳榮譽校友 (Secret End)",
+                img: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1200",
+                text: "<strong>【Secret End：唯真唯校的校史傳奇】</strong><br><br>咔噠！密碼鎖精準解開！校長室內飛出無數歷史文獻。你因為對學校歷史的絕對熱愛與尊重，打破了這棟校園的所有怨氣詛咒。<br><br>你不僅各科順利通過，更獲得了學校全額獎學金。你的名字被刻在銘傳的榮譽牆上，成為學弟妹口中的傳奇學長姐！",
+                choices: [{ text: "✨ 達成【隱藏結局】！點擊重新轉生遊玩", target: "start" }]
+            },
+            "end_good": {
+                status: "🎉 最終結局三：順利歐趴畢業 (Normal End)",
+                img: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=1200",
+                text: "<strong>【Normal End：平凡的 All Pass】</strong><br><br>你成功拿到了證書，大禮堂的幻象漸漸淡去。你順利完成了這場驚心動魄的挑戰，歐趴畢業！<br><br>走出校門，你呼吸著新鮮空氣。雖然未來工作依然充滿挑戰，但你已經具備了面對未知困難的冷靜與韌性。祝你未來順利！",
+                choices: [{ text: "🔄 達成【普通結局】。挑戰其他更完美的結局？", target: "start" }]
+            },
+            "end_normal": {
+                status: "🩹 最終結局四：驚險擦邊球慘勝 (Good End)",
+                img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200",
+                text: "<strong>【Good End：及格萬歲的慘勝】</strong><br><br>你靠著頑強的意志力，強行在風暴中拿到了及格成績。黑霧崩塌，你猛然在座位上醒來，滿頭大汗。老師將成績發回給你——『剛好及格』！<br><br>你驚險地保住了學分，沒有被當掉。雖然過程驚險，但你至少成功活著走出了這段雨天的恐怖迴廊！",
+                choices: [{ text: "🔄 擦邊及格成功！再次挑戰完美真結局？", target: "start" }]
+            },
+            "end_repeat": {
+                status: "💀 最終結局五：無限重修的校園怨靈 (Bad End)",
+                img: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200",
+                text: "<strong>【Bad End：無限留級的詛咒】</strong><br><br>你放棄了抵抗，無數的黑霧將你徹底吞噬。你沒能走出大樓，意識漸漸與大禮堂的黑暗融為一體……<br><br>不知道過去了多少年，每當銘傳大學下起暴雨的深夜，校園路燈熄滅時，你就會飄浮在迴廊與大階梯上，對著路過的學弟妹低語：『同學……不及格的話，就留下來陪我重修吧……』",
+                choices: [{ text: "💀 慘遭留級並落入循環...點擊重新挑戰", target: "start" }]
+            }
+        };
+
+        function renderScene(sceneId) {
+            const data = storyData[sceneId];
+            if (!data) return;
+
+            document.getElementById('game-status').innerText = `目前地點：${data.status}`;
+            
+            const imgElement = document.getElementById('scene-img');
+            imgElement.style.opacity = 0.1;
+            
+            setTimeout(() => {
+                imgElement.src = data.img;
+                imgElement.style.opacity = 1;
+            }, 150);
+
+            document.getElementById('story-text').innerHTML = data.text;
+
+            const optionsBox = document.getElementById('options-box');
+            optionsBox.innerHTML = "";
+            
+            data.choices.forEach(choice => {
+                const button = document.createElement('button');
+                button.className = "btn";
+                button.innerHTML = choice.text;
+                button.onclick = () => renderScene(choice.target);
+                optionsBox.appendChild(button);
+            });
+        }
+
+        window.onload = function() {
+            renderScene("start");
+        };
+    </script>
+
+</body>
+</html>
